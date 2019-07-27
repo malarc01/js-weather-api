@@ -1,4 +1,4 @@
-window.addEventListener("load",()=>{
+Window.addEventListener("load",()=>{
     let long;
     let lat;
 
