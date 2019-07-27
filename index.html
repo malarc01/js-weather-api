@@ -11,16 +11,76 @@
 <body>
     <div class="location">
         <h1 class="location-timezone">Timezone</h1>
-        <p>Icon</p>
+        <canvas class="icon" width="128" height="128"></canvas>
     </div>
     <div class="temperature">
         <div class="degree-section">
         <h2 class="temperature-degree">34</h2>
-        <span>Farenheit</span>
+        <span>F</span>
     </div>
         <div class="temperature-description">Its Cold</div>
     </div>
-<script scr="app.js"></script>
+<script >
+window.addEventListener("load",()=>{
+    let long;
+    let lat;
+    let temperatureDegree = document.querySelector('.temperature-degree')
+    let temperatureDescription = document.querySelector('.temperature-description')
+    let locationTimezone = document.querySelector('.location-timezone');
+    let temperatureSection = document.querySelector('.temperature');
+    const temperatureSpan = document.querySelector('.temperature span')
+    
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position=>{
+            console.log("POSTION => ",position,);
+            long = position.coords.longitude;
+            lat = position.coords.latitude;
+            let proxy ='http://cors-anywhere.herokuapp.com/';
+
+            const api = `${proxy}https://api.darksky.net/forecast/7c18504816cca29f006eb977e140852b/${lat},${long}
+            `
+            fetch(api)
+        .then(response =>{
+            return response.json();
+        })
+        .then(data=>{
+            console.log(data);
+            const {temperature, summary, icon } = data.currently;
+            // set DOM Element from the API
+            temperatureDegree.textContent = temperature;
+            temperatureDescription.textContent = summary;
+            locationTimezone.textContent = data.timezone;
+            //Formula for Celcius
+            let celsius = (temperature-32)*(5/9);
+            //set Icon
+            setIcons(icon, document.querySelector(".icon") );
+
+            // Change temp to Cel/Faren
+            temperatureSection.addEventListener('click',()=>{
+                if(temperatureSpan.textContent ==="F"){
+                    temperatureSpan.textContent="C";
+                    temperatureDegree.textContent = Math.floor(celsius)
+                }else{
+                    temperatureSpan.textContent ="F";
+                    temperatureDegree.textContent = temperature
+                }
+            })
+
+        })
+
+        });
+        
+       
+    }
+    function setIcons(icon, iconID){
+       const skycons = new Skycons({color:"white"});
+       const currentIcon = icon.replace(/-/g,"_").toUpperCase();
+       skycons.play();
+       return skycons.set(iconID,Skycons[currentIcon]);
+   }
+});
+</script>
+<script src="skycons.js"></script>
 </body>
 
 </html>
